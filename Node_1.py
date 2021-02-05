@@ -1,6 +1,10 @@
-import numpy as np 
+# This is a test
+
+import numpy as np
 import matplotlib.pyplot as plt
-from numpy import random 
+from numpy import random
+import networkx as nx
+from networkx import convert_matrix
 
 ################### Constants ###################
 # emplyment_fractions
@@ -29,42 +33,42 @@ def family_size_distribution():
 
 def age_distribution():
 	"""
-	Calulate the age of the person from the real-data distribution 
+	Calulate the age of the person from the real-data distribution
 	Return: Age_band    band age of the node (eg. 2 between 21 and 30 years old)
-	""" 
+	"""
 	# calulate the age by the real data distribution 
 	age = np.random.normal(45, 20)
 	# calulate the age band
 	age_band = int(age/10 - (int(age/10) - age/10))
 	if age_band > 9: # for >90 of age are all the same 
 		age_band = 9
-	return age_band 
+	return age_band
 
 class Node:
 	"""
-	A node represents a person. 
+	A node represents a person.
 	"""
-	
+
 	def __init__(self, age, status='healthy'):
 		"""
 		Method which cunstruct the object. It sets the intial parameters.
-		Inputs: 
+		Inputs:
 		age        Age band of the node
 		"""
 
 		# fraction of eployed by age band
-		emplyment_fractions = np.array([0., 0., 0.5, 0.5, 0.8, 0.8, 0.8, 0.2, 0.2, 0.1,]) 
+		emplyment_fractions = np.array([0., 0., 0.5, 0.5, 0.8, 0.8, 0.8, 0.2, 0.2, 0.1,])
 		essential_workers_fraction = 0.2
 
 		self.age = age
 
 		# Usally at the begining everyone is healthy, set inital conditions
-		self.status = 'healthy' 
-		self.contagious = False 
+		self.status = 'healthy'
+		self.contagious = False
 		self.days_from_infection = 0
 		self.immune = False
 		self.vaccinated = False
-	
+
 		# randomly decide if the person works or not
 		self.job = 'worker'
 		if np.random.rand() > emplyment_fractions[self.age]:
@@ -79,7 +83,7 @@ class Node:
 			self.job = 'essential_worker'
 
 	############### Methods of Updating Status ###############
-	
+
 	def infect(self):
 		"""
 		Infect the node if it's not immune
@@ -111,7 +115,7 @@ class Node:
 		immune_fraction_healing = 0.8 # fraction of immune people after healing
 		if random.rand() <= immune_fraction_healing:
 			self.immune = True
-	
+
 	############### Action on the node ###############
 
 
@@ -122,9 +126,9 @@ class Node:
 		if self.status == 'infected':
 			self.days_from_infection += 1
 
-	def set_contagious(self): 
+	def set_contagious(self):
 		"""
-		function which sets the node as contagious 
+		function which sets the node as contagious
 		"""
 		self.contagious = True
 
@@ -150,16 +154,16 @@ class Node:
 		Calulate the infectivity of the node
 		Return: number between 0 and 1, measuring the probability of infecting other linked nodes
 		"""
-		infectivity = 0 
+		infectivity = 0
 
 		if self.contagious == False:
-			infectivity = 0 
+			infectivity = 0
 			return infectivity
-		
+
 		# case of being infected
 		else:
 			infectivity = calulate_infectivity(self.age, self.day_from_infection)
-			return infectivity 
+			return infectivity
 
 	def print_node(self):
 		"""
@@ -172,18 +176,18 @@ def generate_nodes(number_nodes):
 	Generates the nodes of the simulation
 	Input:
 	number_nodes       Number of nodes of the simulation
-	Return: 
+	Return:
 	nodes_list         List of the nodes
-	family_graph       Matrix representing the faliy subgraph 
+	family_graph       Matrix representing the faliy subgraph
 	"""
 	# initalise the node_list and family_graph
 	nodes_list = []
 	family_graph = np.zeros((number_nodes, number_nodes))
 
 	nodes_remaining = number_nodes
-	nodes_done = 0 
+	nodes_done = 0
 	while nodes_remaining != 0: # while it is possible to generate nodes
-	
+
 		# calulate the size of the family 
 		family_size = family_size_distribution()
 		if family_size > nodes_remaining: # if the family is larger of the remaining nodes
@@ -200,28 +204,38 @@ def generate_nodes(number_nodes):
 
 		nodes_remaining -= family_size # update the remaning nodes
 		nodes_done += family_size # update the done nodes
-		
+		np.fill_diagonal(family_graph,0)
 
-	return nodes_list, family_graph
+    # Networkx graph
+	family_graph_nx = nx.convert_matrix.from_numpy_matrix(family_graph)
+	return nodes_list, family_graph_nx
 
 
 
 if __name__ == '__main__':
 
-	number_nodes = 20
-	nodes_list, family_graph = generate_nodes(number_nodes)
-	print(family_graph)
+	number_nodes = 100
+	nodes_list, family_graph_nx = generate_nodes(number_nodes)
+
+    # Plotting the graph
+	plt.figure(1)
+	family_plot = nx.draw(family_graph_nx, with_labels=True, node_color='green')
+
+    # Generation of random scale-free network using BA Model
+	G_BA = nx.barabasi_albert_graph(number_nodes,2)
+
+    # Plotting the graph
+	plt.figure(2)
+	BA_plot =nx.draw(G_BA, with_labels=True, node_color='red')
+
+    # Composition of the graph together
+    F = nx.compose(G_BA, family_graph_nx)
+
+    #Ploting the graph
+    plt.figure(3)
+	joined_plot = nx.draw(F, with_labels=True)
+
+	plt.show()
 	for node_e in nodes_list:
 		node_e.print_node()
-
-
-
-
-
-
-
-
-
-
-
 
