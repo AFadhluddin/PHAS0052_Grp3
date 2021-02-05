@@ -1,11 +1,13 @@
 import numpy as np 
 import matplotlib.pyplot as plt
 from numpy import random 
+import networkx as nx
+
 
 ################### Constants ###################
 # emplyment_fractions
 # essential_workers_fraction
-# immune_fraction_healing 
+# immune_fraction_healing
 # immune_fraction_vac
 
 def calulate_infectivity(age, day_from_infection):
@@ -40,6 +42,8 @@ def age_distribution():
 		age_band = 9
 	return age_band 
 
+mark = node(3)
+
 class Node:
 	"""
 	A node represents a person. 
@@ -59,7 +63,7 @@ class Node:
 		self.age = age
 
 		# Usally at the begining everyone is healthy, set inital conditions
-		self.status = 'healthy' 
+		self.status = status 
 		self.contagious = False 
 		self.days_from_infection = 0
 		self.immune = False
@@ -75,8 +79,9 @@ class Node:
 			self.job = 'student'
 
 		# randomly decide if it is an essential worker
-		if np.random.rand() < essential_workers_fraction:
-			self.job = 'essential_worker'
+		if self.job == 'worker':
+			if np.random.rand() < essential_workers_fraction: ###### fix this cogno 
+				self.job = 'essential_worker'
 
 	############### Methods of Updating Status ###############
 	
@@ -204,15 +209,46 @@ def generate_nodes(number_nodes):
 
 	return nodes_list, family_graph
 
+def genrate_free_scale(number_nodes, exponent):
+	"""
+	Generates the scale free graph 
+	Input:
+	number_nodes       Number of nodes of the simulation
+	exponent           Eponent of the power series of the degree distribution 
+	Return: 
+	free_graph         Matrix representing the faliy subgraph 
+	"""
+
+	#create the graph 
+	s = nx.utils.powerlaw_sequence(number_nodes, exponent)
+	G = nx.expected_degree_graph(s, selfloops=False)
+
+	free_graph = np.zeros((number_nodes,number_nodes))
+
+	# convert the toubles of the edges in the matrix form
+	for edge in G.edges():
+		free_graph[edge[0], edge[1]] = 1 
+		free_graph[edge[1], edge[0]] = 1 
+
+	return free_graph
+
 
 
 if __name__ == '__main__':
 
-	number_nodes = 20
+	number_nodes = 20000
+	degree = 4
 	nodes_list, family_graph = generate_nodes(number_nodes)
-	print(family_graph)
-	for node_e in nodes_list:
-		node_e.print_node()
+	free_graph = genrate_free_scale(number_nodes, degree)
+
+	degree = np.sum(free_graph, axis= 0)
+	fig = plt.hist(degree, bins=100)
+	plt.savefig('histogram.pdf')
+
+	#print(family_graph)
+	#for node_e in nodes_list:
+		#node_e.print_node()
+
 
 
 
