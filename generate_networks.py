@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from networkx import convert_matrix
 from Node_Test import *
-from graph_distributions import *
+from graph_dist_class import *
 
 
 #def unemployed_distribution():
@@ -19,7 +19,7 @@ def family_network(number_nodes):
     """ Generates a family network
     Input: number_nodes   Total amount of people"""
 
-# initalise the node_list and family_graph
+    # initalise the node_list and family_graph
     nodes_list = []
     family_graph = np.zeros((number_nodes,number_nodes))
 
@@ -28,14 +28,14 @@ def family_network(number_nodes):
     while nodes_remaining != 0: # while it is possible to generate nodes
 
         # calulate the size of the family 
-        family_size = family_size_distribution()
+        family_size = graph_distributions('family').size_distribution()
         if family_size > nodes_remaining: # if the family is larger of the remaining nodes
             family_size = nodes_remaining # set the family size as the remaining nodes
 
 
         for i in range(int(family_size)):
             # create the nodes
-            age = age_distribution('family')
+            age = graph_distributions('family').age_distribution()
             nodes_list.append(Node(age))
             # create the family subgraph 
             for j in range(int(family_size)):
@@ -65,14 +65,14 @@ def workers_network(number_nodes, prop_of_pop):
     while nodes_remaining != 0: # while it is possible to generate nodes
 
         # calulate the size of the worker group 
-        workers_size = workers_size_distribution()
+        workers_size = graph_distributions('workers').size_distribution()
         if workers_size > nodes_remaining: # if the worker group is larger of the remaining nodes
             workers_size = nodes_remaining # set the worker group size as the remaining nodes
 
 
         for i in range(int(workers_size)):
             # create the nodes
-            age = age_distribution('workers')
+            age = graph_distributions('workers').age_distribution()
             person = Node(age)
             if person.job == 'worker': # only adds nodes that fit the network type
                 nodes_list.append(person)
@@ -107,14 +107,14 @@ def essential_workers_network(number_nodes, prop_of_pop):
     while nodes_remaining != 0: # while it is possible to generate nodes
 
         # calulate the size of the worker group 
-        essential_workers_size = workers_size_distribution()
+        essential_workers_size = graph_distributions('essential_workers').size_distribution()
         if essential_workers_size > nodes_remaining: # if the essential workers gruop is larger of the remaining nodes
             essential_workers_size = nodes_remaining # set the essential workers size as the remaining nodes
 
 
         for i in range(int(essential_workers_size)):
             # create the nodes
-            age = age_distribution('essential_workers')
+            age = graph_distributions('essential_workers').age_distribution()
             person = Node(age)
             if person.job == 'essential_worker': # only adds nodes that fit the network type
                 nodes_list.append(person)
@@ -149,14 +149,14 @@ def student_network(number_nodes, prop_of_pop):
 
         # calulate the size of the worker group
         
-        student_size = student_size_distribution()
+        student_size = graph_distributions('student').size_distribution()
         if student_size > nodes_remaining: # if the student group is larger of the remaining nodes
             student_size = nodes_remaining # set the student size as the remaining nodes
 
 
         for i in range(int(student_size)):
             # create the nodes
-            age = age_distribution('student')
+            age = graph_distributions('student').age_distribution()
             person = Node(age)
             if person.job == 'student':
                 nodes_list.append(person)
