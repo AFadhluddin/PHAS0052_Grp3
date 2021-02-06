@@ -134,7 +134,7 @@ def essential_workers_network(number_nodes, prop_of_pop):
     return nodes_list, essential_workers_graph_nx
 
 def student_network(number_nodes, prop_of_pop):
-""" Generates a student network
+    """ Generates a student network
     Input:
     number_of_nodes  Total number of people in the simulation
     prop_of_pop  Proportion of the population which are students"""
