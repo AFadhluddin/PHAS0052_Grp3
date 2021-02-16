@@ -1,4 +1,3 @@
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -9,92 +8,242 @@ import pathlib
 from data_importing_tool import *
 from node_class import *
 from real_data_distributions import *
+from utils_network_generation import *
 
-def return_nodes_list_distributions(nodes_list):
-	"""
-	Return information on the node of the network
-	Inputs: 
-	nodes_list                        Lists of the nodes
-	Ouputs:
-	total_worker_distribution         Workers distribution by age (including essential and nonessential)
-	worker_distributon                Nonessential orkers distribution by age
-	essential_worker_distribution     Essential workers distribution by age
-	student_distribution              Students distribution by age
-	total_number_worker               Total number of workers (including essential and nonessential)
-	number_worker                     Number of nonessential workers
-	number_essential_worker           Number of essential workers
-	number_student                    Number of students 
-	"""
-	total_worker_distribution, worker_distributon, essential_worker_distribution, student_distribution = np.zeros(20), np.zeros(20), np.zeros(20), np.zeros(20) 
-	for node in nodes_list:
-		if node.job == 'worker':
-			worker_distributon[node.age] += 1
 
-		elif node.job == 'essential_worker':
-			essential_worker_distribution[node.age] += 1
+class Network_Generation:
+    """
+    Network generation class
+    """
 
-		elif node.job == 'student':
-			student_distribution[node.age] += 1
-	total_worker_distribution = worker_distributon + essential_worker_distribution
-	total_number_worker = np.sum(total_worker_distribution)
-	number_worker = np.sum(worker_distributon)
-	number_essential_worker = np.sum(essential_worker_distribution)
-	number_student = np.sum(student_distribution)
+    def __init__(self, number_nodes):
+        """
+        Constructor for network generation
 
-	return total_worker_distribution, worker_distributon, essential_worker_distribution, student_distribution, total_number_worker, number_worker, number_essential_worker, number_student
+        Inputs: 
+        number_nodes (int)  size of the population 
+        """
 
-def generate_nodes(number_nodes):
-	"""
-	Generates the nodes of the simulation and the f
-	Input:
-	number_nodes       Number of nodes of the simulation
-	Return: 
-	nodes_list         List of the nodes
-	family_graph       Matrix representing the faliy subgraph 
-	"""
-	# initalise the node_list and family_graph
-	nodes_list = []
-	family_graph = np.zeros((number_nodes, number_nodes))
+        self.number_nodes = number_nodes
+        self.node_list = node_generation(number_nodes)
+        self.total_init_matrix = np.zeros((number_nodes, number_nodes))
 
-	nodes_remaining = number_nodes
-	nodes_done = 0 
-	while nodes_remaining != 0: # while it is possible to generate nodes
-	
-		# calulate the size of the family 
-		family_size = set_family_size()
-		if family_size > nodes_remaining: # if the family is larger of the remaining nodes
-			family_size = nodes_remaining # set the family size as the remaining nodes
+        self.worker_network_iarray, self.essential_worker_network_iarray, self.student_network_iarray, self.total_number_worker, self.number_worker, self.number_essential_worker, self.number_student, self.student_occurence_index, self.essential_worker_occurence_index, self.worker_occurence_index = return_nodes_list_distributions(self.node_list)
 
-		for i in range(int(family_size)):
 
-			# create the nodes
-			nodes_list.append(Node())
-			# create the family subgraph 
-			for j in range(int(family_size)):
-				family_graph[nodes_done+i,nodes_done+j] = 1
 
-		nodes_remaining -= family_size # update the remaning nodes
-		nodes_done += family_size # update the done nodes
-		
-	return nodes_list, family_graph
+    def family_network(self):
+        """
+        Creates a family network
 
-def main_generation(number_nodes):
-	"""
-	Main function to call to generate the network
-	Input:
-	number_nodes       Number of nodes of the simulation
-	Return: 
-	nodes_list         List of the nodes
-	total_network      Matrix of the total network 
-	"""
-	nodes_list, family_graph = generate_nodes(number_nodes)
-	total_network = family_graph
-	return nodes_list, total_network
+        Returns:
+        family_network (2d array)  matrix of the family network
+        """
 
-number_nodes = 1000
-nodes_list, total_network = main_generation(number_nodes)
-total_worker_distribution, worker_distributon, essential_worker_distribution, student_distribution, total_number_worker, number_worker, number_essential_worker, number_student = return_nodes_list_distributions(nodes_list)
-#print(total_network)
-print(total_worker_distribution)
-print(worker_distributon)
-print(essential_worker_distribution)
+        family_network = self.total_init_matrix
+        nodes_remaining = self.number_nodes
+        nodes_done = 0
+        while nodes_remaining != 0:  # while it is possible to generate nodes
+
+            # calulate the size of the family
+            family_size = set_family_size()
+            if family_size > nodes_remaining:  # if the family is larger of the remaining nodes
+                family_size = nodes_remaining  # set the family size as the remaining nodes
+
+            for i in range(int(family_size)):
+
+                # create the family subgraph
+                for j in range(int(family_size)):
+                    family_network[nodes_done+i, nodes_done+j] = 1
+
+            nodes_remaining -= family_size  # update the remaning nodes
+            nodes_done += family_size  # update the done nodes
+            
+
+        return family_network
+
+    def random_social_network(self,  m=1):
+        """
+        Creates a random network
+
+        Returns:
+        random_network (2d array)  matrix of the random network
+        """
+        
+        # Use NetworK BA model to create network
+        G_BA_social = nx.barabasi_albert_graph(self.number_nodes, m)
+
+        social_network = self.total_init_matrix
+
+        # Decompose nx graph to matrix
+        for edge in G_BA_social.edges():
+            social_network[edge[0], edge[1]] = 1
+            social_network[edge[1], edge[0]] = 1
+
+        # Set diagonal elements to 0
+        np.fill_diagonal(social_network, 0)
+
+        return social_network
+
+    def worker_network(self, m=3):
+        """
+        Creates a worker network
+
+        Returns:
+        worker_network (2d array)  matrix of the worker network
+        """
+        # Variables to hold the constructor variables
+        worker_network_iarray = self.worker_network_iarray
+        number_worker = int(self.number_worker)
+        worker_occurence_index = self.worker_occurence_index
+
+        # Initialising the job and population matrices
+        worker_network = np.zeros((number_worker, number_worker))
+        worker_total_network = self.total_init_matrix
+
+        # Using NetworkX to make a free scale graph
+        G_BA_worker = nx.barabasi_albert_graph(number_worker, m)
+
+        # Decompose nx graph to matrix
+        for edge in G_BA_worker.edges():
+            worker_network[edge[0], edge[1]] = 1
+            worker_network[edge[1], edge[0]] = 1
+
+        # Create final filled population-sized matrix for job type
+        worker_total_network_filled = total_nodes_sq_mtrx_from_job_graph(
+            worker_total_network, worker_network, worker_occurence_index)
+
+        
+        return worker_total_network_filled
+
+    def essential_worker_network(self, m=1):
+        """
+        Creates a essential worker network
+
+        Returns:
+        essential_worker_network (2d array)  matrix of the essential worker network
+        """
+
+        # Variables to hold the constructor variables
+        essential_worker_network_iarray = self.essential_worker_network_iarray
+        number_essential_worker = int(self.number_essential_worker)
+        essential_worker_occurence_index = self.essential_worker_occurence_index
+
+        # Initialising the job and population matrices
+        essential_worker_network = np.zeros(
+            (number_essential_worker, number_essential_worker))
+        essential_worker_total_network = self.total_init_matrix
+
+        # Using NetworkX to make a free scale graph
+        G_BA_essential_worker = nx.barabasi_albert_graph(
+            number_essential_worker, m)
+
+        # Decompose nx graph to matrix
+        for edge in G_BA_essential_worker.edges():
+            essential_worker_network[edge[0], edge[1]] = 1
+            essential_worker_network[edge[1], edge[0]] = 1
+
+        # Create final filled population-sized matrix for job type
+        essential_worker_total_network_filled = total_nodes_sq_mtrx_from_job_graph(
+            essential_worker_total_network, essential_worker_network, essential_worker_occurence_index)
+
+        return essential_worker_total_network_filled
+
+    def student_network(self, m=1):
+        """
+        Creates a student network
+
+        Returns:
+        student_network (2d array)  matrix of the student network
+        """
+
+        # Variables to hold the constructor variables
+        student_network_iarray = self.student_network_iarray
+        number_student = int(self.number_student)
+        student_occurence_index = self.student_occurence_index
+
+        # Initialising the job and population matrices
+        student_network = np.zeros((number_student, number_student))
+        student_total_network = self.total_init_matrix
+
+         # Using NetworkX to make a free scale graph
+        G_BA_student = nx.barabasi_albert_graph(number_student, m)
+
+        # Decompose nx graph to matrix
+        for edge in G_BA_student.edges():
+            student_network[edge[0], edge[1]] = 1
+            student_network[edge[1], edge[0]] = 1
+
+        # Create final filled population-sized matrix for job type
+        student_total_network_filled = total_nodes_sq_mtrx_from_job_graph(
+            student_total_network, student_network, student_occurence_index)
+
+        return student_total_network_filled  
+        
+        
+
+def main(number_nodes):
+    """
+    Main loop to be executed
+    
+    Input: 
+    number_nodes (int) size of the population
+
+    Return:
+    Creates networkx graphs
+    Plots them
+    """
+
+    # call the functions to generate the networks
+    network_init = Network_Generation(number_nodes)
+    network_init_mtrx = network_init.total_init_matrix
+    family_network_nx = nx.convert_matrix.from_numpy_matrix(
+        network_init.family_network())
+    worker_network_nx = nx.convert_matrix.from_numpy_matrix(
+        network_init.worker_network())
+    essential_network_graph_nx = nx.convert_matrix.from_numpy_matrix(
+        network_init.essential_worker_network())
+    student_network_nx = nx.convert_matrix.from_numpy_matrix(
+        network_init.student_network())
+    random_network_nx = nx.convert_matrix.from_numpy_matrix(
+        network_init.random_social_network())
+
+
+   # Plotting the graph
+    plt.figure(1)
+    family_plot = nx.draw(
+        family_network_nx, with_labels=True, node_color='green')
+
+    # Plotting the graph
+    plt.figure(2)
+    workers_plot = nx.draw(
+        worker_network_nx, with_labels=True, node_color='blue')
+
+    # Plotting the graph
+    plt.figure(3)
+    essential_workers_plot = nx.draw(
+        essential_network_graph_nx, with_labels=True, node_color='yellow')
+
+    # Plotting the graph
+    plt.figure(4)
+    random_plot = nx.draw(
+        random_network_nx, with_labels=True, node_color='red')
+
+    # Plotting the graph
+    plt.figure(5)
+    random_plot = nx.draw(student_network_nx,
+                          with_labels=True, node_color='pink')
+
+    # Composition of the graph together
+    composition_graph = nx.compose_all(
+        [family_network_nx, worker_network_nx, essential_network_graph_nx, random_network_nx, student_network_nx])
+
+    # Ploting the graph
+    plt.figure(6)
+    joined_plot = nx.draw(composition_graph, with_labels=True)
+
+
+if __name__ == "__main__":
+    number_nodes = 150
+    main(number_nodes)
+    plt.show()
