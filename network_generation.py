@@ -182,7 +182,7 @@ class Network_Generation:
         
         
 
-def main(number_nodes):
+def main_generation(number_nodes):
     """
     Main loop to be executed
     
@@ -244,6 +244,6 @@ def main(number_nodes):
 
 
 if __name__ == "__main__":
-    number_nodes = 150
-    main(number_nodes)
+    number_nodes = 50
+    main_generation(number_nodes)
     plt.show()
