@@ -5,6 +5,7 @@ from numpy import random
 import networkx as nx
 from networkx import convert_matrix
 import pathlib
+import collections
 from data_importing_tool import *
 from node_class import *
 from real_data_distributions import *
@@ -178,8 +179,23 @@ class Network_Generation:
         student_total_network_filled = total_nodes_sq_mtrx_from_job_graph(
             student_total_network, student_network, student_occurence_index)
 
-        return student_total_network_filled  
-        
+        return student_total_network_filled 
+
+
+def degree_distribution(nx_graph):
+    """
+    Retruns the degrees and the counts of the graph
+
+    Inputs:
+    nx_graph (NetworkX graph object)  nx graph
+
+    Outputs:
+
+    deg    degrees of the graph
+    """
+    degrees = [nx_graph.degree(n) for n in nx_graph.nodes()]
+
+    return degrees
         
 
 def main_generation(number_nodes):
@@ -193,20 +209,31 @@ def main_generation(number_nodes):
     Creates networkx graphs
     Plots them
     """
+    
 
     # call the functions to generate the networks
     network_init = Network_Generation(number_nodes)
     network_init_mtrx = network_init.total_init_matrix
+    
     family_network_nx = nx.convert_matrix.from_numpy_matrix(
         network_init.family_network())
+    deg_family = degree_distribution(family_network_nx)
+    
     worker_network_nx = nx.convert_matrix.from_numpy_matrix(
-        network_init.worker_network())
+        network_init.worker_network(25))
+    deg_worker = degree_distribution(worker_network_nx)
+
     essential_network_graph_nx = nx.convert_matrix.from_numpy_matrix(
-        network_init.essential_worker_network())
+        network_init.essential_worker_network(1))
+    deg_essential_worker = degree_distribution(essential_network_graph_nx)
+    
     student_network_nx = nx.convert_matrix.from_numpy_matrix(
-        network_init.student_network())
+        network_init.student_network(25))
+    deg_student = degree_distribution(student_network_nx)
+
     random_network_nx = nx.convert_matrix.from_numpy_matrix(
-        network_init.random_social_network())
+        network_init.random_social_network(25))
+    deg_random = degree_distribution(random_network_nx)
 
 
    # Plotting the graph
@@ -242,8 +269,42 @@ def main_generation(number_nodes):
     plt.figure(6)
     joined_plot = nx.draw(composition_graph, with_labels=True)
 
+    # Plotting Degree Distributions
+    plt.figure(7)
+    plt.hist(deg_family, width=0.80, color="green")
+    plt.title("Family Degree Histogram")
+    plt.ylabel("Count")
+    plt.xlabel("Degree")
+
+    # Plotting Degree Distributions
+    plt.figure(8)
+    plt.hist(deg_worker, width=0.80, color="blue")
+    plt.title("Worker Degree Histogram")
+    plt.ylabel("Count")
+    plt.xlabel("Degree")
+
+    # Plotting Degree Distributions
+    plt.figure(9)
+    plt.hist(deg_essential_worker, width=0.80, color="yellow")
+    plt.title("Essential Worker Degree Histogram")
+    plt.ylabel("Count")
+    plt.xlabel("Degree")
+
+    # Plotting Degree Distributions
+    plt.figure(10)
+    plt.hist(deg_student, width=0.80, color="pink")
+    plt.title("Student Degree Histogram")
+    plt.ylabel("Count")
+    plt.xlabel("Degree")
+
+    # Plotting Degree Distributions
+    plt.figure(11)
+    plt.hist(deg_random, width=0.80, color="red")
+    plt.title("Random Degree Histogram")
+    plt.ylabel("Count")
+    plt.xlabel("Degree")
 
 if __name__ == "__main__":
-    number_nodes = 50
+    number_nodes = 100
     main_generation(number_nodes)
     plt.show()
