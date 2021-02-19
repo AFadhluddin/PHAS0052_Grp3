@@ -18,10 +18,24 @@ from data_importing_tool import *
 #parameter_by_age = parameter_importer(path, file_name)
 #parameter_by_age = csv_to_dataframe(path)
 
-parameter_age = pd.read_csv('parameters_age.csv')
-parameter_age['percentage_population'] = parameter_age['population_UK']/parameter_age['population_UK'].sum()
 
-parameter_day = pd.read_csv('parameters_day.csv')
+
+# create a dataframe for parameter where the index is age
+df_parameter_age = parameter_importer('parameters_age.csv')
+
+# this is to form a new column 'percentage_population' that shows the percentage of the population in certain age range, in case you need it
+df_parameter_age['percentage_population'] = df_parameter_age['population_UK']/df_parameter_age['population_UK'].sum()
+
+
+# create a dataframe for parameter where the index is day
+df_parameter_day = parameter_importer('parameters_day.csv')
+
+
+
+#parameter_age = pd.read_csv('parameters_age.csv')
+#parameter_age['percentage_population'] = parameter_age['population_UK']/parameter_age['population_UK'].sum()
+
+#parameter_day = pd.read_csv('parameters_day.csv')
 
 ########### Generation of the Node ###########
 
