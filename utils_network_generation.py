@@ -67,24 +67,17 @@ def total_nodes_sq_mtrx_from_job_graph(full_size_graph, job_graph, number_occure
     full_size_graph (n array)  filled array mapping job_graph
     """
 
-    row_loc = []
-    col_loc = []
-
     # enumerate over the occurences
-    for ind, pos in enumerate(number_occurences):
-        if pos != 0:
-            
-            # Create locations of the elements in the rows and collumns
-            job_graph_row = job_graph[pos-1, :]
-            row_loc.append(ind)
-            job_graph_col = job_graph[:, pos-1]
-            col_loc.append(ind)
+    translate = []
+    for i, n in enumerate(number_occurences):
+        if n != 0:
+            translate.append(i+1)
 
-            # Loops to populate population matrix
-            for i in row_loc:
-                full_size_graph[ind, :][i] = 1
-            for j in col_loc:
-                full_size_graph[:, ind][i] = 1
+    for i, row in enumerate(job_graph):
+        for j, n in enumerate(row):
+            if n != 0:
+                full_size_graph[translate[j]-1][translate[i]-1] = 1
+
 
     # Remove the diagonal elements
     np.fill_diagonal(full_size_graph, 0)

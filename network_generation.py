@@ -5,7 +5,10 @@ from numpy import random
 import networkx as nx
 from networkx import convert_matrix
 import pathlib
-
+import collections
+from data_importing_tool import *
+from node_class import *
+from real_data_distributions import *
 from utils_network_generation import *
 
 
@@ -60,7 +63,7 @@ class Network_Generation:
 
         return family_network
 
-    def random_social_network(self,  m=1):
+    def random_social_network(self, p=0.4):
         """
         Creates a random network
 
@@ -69,7 +72,7 @@ class Network_Generation:
         """
         
         # Use NetworK BA model to create network
-        G_BA_social = nx.barabasi_albert_graph(self.number_nodes, m)
+        G_BA_social = nx.erdos_renyi_graph(self.number_nodes, p)
 
         social_network = self.total_init_matrix
 
@@ -83,7 +86,7 @@ class Network_Generation:
 
         return social_network
 
-    def worker_network(self, m=3):
+    def worker_network(self, p=0.3):
         """
         Creates a worker network
 
@@ -100,7 +103,7 @@ class Network_Generation:
         worker_total_network = self.total_init_matrix
 
         # Using NetworkX to make a free scale graph
-        G_BA_worker = nx.barabasi_albert_graph(number_worker, m)
+        G_BA_worker = nx.erdos_renyi_graph(number_worker, p)
 
         # Decompose nx graph to matrix
         for edge in G_BA_worker.edges():
@@ -114,7 +117,7 @@ class Network_Generation:
         
         return worker_total_network_filled
 
-    def essential_worker_network(self, m=1):
+    def essential_worker_network(self, p=0.3):
         """
         Creates a essential worker network
 
@@ -133,8 +136,7 @@ class Network_Generation:
         essential_worker_total_network = self.total_init_matrix
 
         # Using NetworkX to make a free scale graph
-        G_BA_essential_worker = nx.barabasi_albert_graph(
-            number_essential_worker, m)
+        G_BA_essential_worker =nx.erdos_renyi_graph(number_essential_worker, p)
 
         # Decompose nx graph to matrix
         for edge in G_BA_essential_worker.edges():
@@ -147,7 +149,7 @@ class Network_Generation:
 
         return essential_worker_total_network_filled
 
-    def student_network(self, m=1):
+    def student_network(self, p=0.3):
         """
         Creates a student network
 
@@ -165,7 +167,7 @@ class Network_Generation:
         student_total_network = self.total_init_matrix
 
          # Using NetworkX to make a free scale graph
-        G_BA_student = nx.barabasi_albert_graph(number_student, m)
+        G_BA_student = nx.erdos_renyi_graph(number_student, p)
 
         # Decompose nx graph to matrix
         for edge in G_BA_student.edges():
@@ -176,8 +178,66 @@ class Network_Generation:
         student_total_network_filled = total_nodes_sq_mtrx_from_job_graph(
             student_total_network, student_network, student_occurence_index)
 
-        return student_total_network_filled  
+        return student_total_network_filled
+
+
+    def essential_random_network(self, p=0.4):
+        """
+        Creates an essential_random_essential network
+
+        Returns:
+        random_network (2d array)  matrix of the random network
+        """
         
+        # Variables to hold the constructor variables
+        essential_worker_network_iarray = self.essential_worker_network_iarray
+        number_essential_worker = int(self.number_essential_worker)
+        essential_worker_occurence_index = self.essential_worker_occurence_index
+
+        # enumerate over the occurences
+        translate = []
+        for i, n in enumerate(essential_worker_occurence_index):
+            if n != 0:
+                translate.append(i)
+        
+        # Use NetworK BA model to create network
+        G_BA_essential_social = nx.erdos_renyi_graph(self.number_nodes, p)
+
+        essential_social_network = self.total_init_matrix
+
+        # Decompose nx graph to matrix
+        for edge in G_BA_essential_social.edges():
+            essential_social_network[edge[0], edge[1]] = 1
+            essential_social_network[edge[1], edge[0]] = 1
+
+        for i, row in enumerate(essential_social_network):
+            for j, elem in enumerate(row):
+                if elem == 1:
+                    if i not in translate and j not in translate:
+                        essential_social_network[i,j] = 0
+
+        
+
+        # Set diagonal elements to 0
+        np.fill_diagonal(essential_social_network, 0)
+
+        return essential_social_network 
+
+
+def degree_distribution(nx_graph):
+    """
+    Retruns the degrees and the counts of the graph
+
+    Inputs:
+    nx_graph (NetworkX graph object)  nx graph
+
+    Outputs:
+
+    deg    degrees of the graph
+    """
+    degrees = [nx_graph.degree(n) for n in nx_graph.nodes()]
+
+    return degrees
         
 
 def main_generation(number_nodes):
@@ -191,20 +251,35 @@ def main_generation(number_nodes):
     Creates networkx graphs
     Plots them
     """
+    
 
     # call the functions to generate the networks
     network_init = Network_Generation(number_nodes)
     network_init_mtrx = network_init.total_init_matrix
+    
     family_network_nx = nx.convert_matrix.from_numpy_matrix(
         network_init.family_network())
+    deg_family = degree_distribution(family_network_nx)
+    
     worker_network_nx = nx.convert_matrix.from_numpy_matrix(
-        network_init.worker_network())
+        network_init.worker_network(0.1))
+    deg_worker = degree_distribution(worker_network_nx)
+
     essential_network_graph_nx = nx.convert_matrix.from_numpy_matrix(
-        network_init.essential_worker_network())
+        network_init.essential_worker_network(0.4))
+    deg_essential_worker = degree_distribution(essential_network_graph_nx)
+    
     student_network_nx = nx.convert_matrix.from_numpy_matrix(
-        network_init.student_network())
+        network_init.student_network(0.6))
+    deg_student = degree_distribution(student_network_nx)
+
     random_network_nx = nx.convert_matrix.from_numpy_matrix(
         network_init.random_social_network())
+    deg_random = degree_distribution(random_network_nx)
+
+    essential_random_network_nx = nx.convert_matrix.from_numpy_matrix(
+        network_init.essential_random_network(1))
+    deg_essential_random = degree_distribution(essential_random_network_nx)
 
 
    # Plotting the graph
@@ -229,7 +304,12 @@ def main_generation(number_nodes):
 
     # Plotting the graph
     plt.figure(5)
-    random_plot = nx.draw(student_network_nx,
+    student_plot = nx.draw(student_network_nx,
+                          with_labels=True, node_color='pink')
+
+    # Plotting the graph
+    plt.figure(6)
+    essential_plot = nx.draw(essential_network_graph_nx,
                           with_labels=True, node_color='pink')
 
     # Composition of the graph together
@@ -237,11 +317,58 @@ def main_generation(number_nodes):
         [family_network_nx, worker_network_nx, essential_network_graph_nx, random_network_nx, student_network_nx])
 
     # Ploting the graph
-    plt.figure(6)
-    joined_plot = nx.draw(composition_graph, with_labels=True)
+    plt.figure(7)
+    essential_random_plot= nx.draw(essential_random_network_nx, with_labels=True, node_color='black')
 
+    # Ploting the graph
+    plt.figure(8)
+    composite_plot= nx.draw(composition_graph, with_labels=True)
+
+
+    # Plotting Degree Distributions
+    plt.figure(9)
+    plt.hist(deg_family, width=0.80, color="green")
+    plt.title("Family Degree Histogram")
+    plt.ylabel("Count")
+    plt.xlabel("Degree")
+
+    # Plotting Degree Distributions
+    plt.figure(10)
+    plt.hist(deg_worker, width=0.80, color="blue")
+    plt.title("Worker Degree Histogram")
+    plt.ylabel("Count")
+    plt.xlabel("Degree")
+
+    # Plotting Degree Distributions
+    plt.figure(11)
+    plt.hist(deg_essential_worker, width=0.80, color="yellow")
+    plt.title("Essential Worker Degree Histogram")
+    plt.ylabel("Count")
+    plt.xlabel("Degree")
+
+    # Plotting Degree Distributions
+    plt.figure(12)
+    plt.hist(deg_student, width=0.80, color="pink")
+    plt.title("Student Degree Histogram")
+    plt.ylabel("Count")
+    plt.xlabel("Degree")
+
+    # Plotting Degree Distributions
+    plt.figure(13)
+    plt.hist(deg_random, width=0.80, color="red")
+    plt.title("Random Degree Histogram")
+    plt.ylabel("Count")
+    plt.xlabel("Degree")
+
+    # Plotting Degree Distributions
+    plt.figure(14)
+    plt.hist(deg_essential_random, width=0.80, color="red")
+    plt.title("Essential Random Degree Histogram")
+    plt.ylabel("Count")
+    plt.xlabel("Degree")
 
 if __name__ == "__main__":
-    number_nodes = 50
+    number_nodes = 100
     main_generation(number_nodes)
     plt.show()
+
