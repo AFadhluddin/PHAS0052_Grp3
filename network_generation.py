@@ -371,3 +371,4 @@ if __name__ == "__main__":
     number_nodes = 100
     main_generation(number_nodes)
     plt.show()
+

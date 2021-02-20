@@ -5,9 +5,8 @@ from numpy import random
 import networkx as nx
 from networkx import convert_matrix
 import pathlib
-from data_importing_tool import *
+
 from node_class import *
-from real_data_distributions import *
 
 #import sys
 #np.set_printoptions(threshold=sys.maxsize)
@@ -23,10 +22,10 @@ def node_generation(number_nodes):
     Return:
     nodes_list (list)   Contains list of the nodes created
     """
-
     nodes_list = []
     for i in range(number_nodes):
-        nodes_list.append(Node())
+        node = Node()
+        nodes_list.append(node)
 
     return nodes_list
 

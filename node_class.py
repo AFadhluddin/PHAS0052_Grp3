@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from numpy import random
 import networkx as nx
 from networkx import convert_matrix
+
 from real_data_distributions import *
 
 ################### Constants ###################
@@ -28,12 +29,16 @@ class Node:
         # Usally at the begining everyone is healthy, set inital conditions
         self.status = 'healthy'
         self.contagious = False
-        self.days_from_infection = 0
+        self.day_from_infection = 0
         self.immune = False
         self.vaccinated = False
 
         # set the job of the node
         self.job = set_job(self.age)
+
+        self.day_first_symptoms = -1
+        self.day_of_death = -1
+        self.day_of_heal = -1
         
 
 
@@ -44,7 +49,21 @@ class Node:
         Infect the node if it's not immune
         """
         if self.immune == False:
-            self.status = 'infected'
+            self.status = 'infected' # set as infected
+
+            probability_contagues = contagious_probability_age(self.age)
+            if probability_contagues > np.random.rand():
+                self.day_first_symptoms = day_of_first_symptoms()
+                self.day_of_heal = self.day_first_symptoms + 14
+            else:
+                self.day_first_symptoms = -1 # imposible to be met
+                self.day_of_heal = 14
+
+            probability_death = death_probability_age(self.age)
+            if probability_death > np.random.rand():
+                self.day_of_death = day_of_death()
+            else:
+                self.day_of_death = -1
         else:
             pass
 
@@ -54,6 +73,9 @@ class Node:
         """
         self.status = 'dead'
         self.contagious = False
+        self.day_first_symptoms = -1
+        self.day_of_heal = -1 
+        self.day_of_death = -1
 
     def heal(self):
         """
@@ -65,6 +87,8 @@ class Node:
         self.tested = False
         self.contagious = False
         self.day_from_infection = 0
+        self.day_first_symptoms = -1
+        self.day_of_heal = -1 
 
         # the node can become immune
         immune_fraction_healing = 0.8 # fraction of immune people after healing
@@ -79,7 +103,7 @@ class Node:
         Update the days from infection
         """
         if self.status == 'infected':
-            self.days_from_infection += 1
+            self.day_from_infection += 1
 
     def set_contagious(self):
         """
@@ -111,14 +135,10 @@ class Node:
         """
         infectivity = 0
 
-        if self.contagious == False:
-            infectivity = 0
-            return infectivity
-
-        # case of being infected
-        else:
-            infectivity = calulate_infectivity(self.age, self.day_from_infection)
-            return infectivity
+        if self.contagious == True:
+            infectivity = infectivity_factor(self.day_from_infection)
+        
+        return infectivity
 
     def print_node(self):
         """

@@ -31,24 +31,20 @@ def csv_to_dataframe(path):
     return df
 
 
-def parameter_importer(path, file_name):
+def parameter_importer(file_name):
     """
-    Input: path of the folder and the name of the csv file
+    Input: the name of the csv file in ''
     Output: a dataframe containing the parameters found by data group
     """
     
-    #setting the path to the folder containing the .csv files
-    #the only thing you need to do here is to put all the files belonging to the same dataset in the same folder which you reference here
-    dirName = path 
-    dirName_feats = dirName + file_name
 
     #index set as 'Age' column so the other data will be merged according to the date
     #header = 0 so the first row indicate the name of the column
-    df_parameters = pd.read_csv(dirName_feats, index_col='Age', header=0)
+    df_parameters = pd.read_csv(file_name, index_col= 0, header=0)
 
 
     #this is to form a new column 'percentage_population' that shows the percentage of the population in certain age range, in case you need it
-    df_parameters['percentage_population'] = df_parameters['populationUK']/df_parameters['populationUK'].sum()
+    #df_parameters['percentage_population'] = df_parameters['populationUK']/df_parameters['populationUK'].sum()
 
     return df_parameters
 
