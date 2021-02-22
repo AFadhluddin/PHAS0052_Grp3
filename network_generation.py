@@ -60,7 +60,6 @@ class Network_Generation:
             nodes_remaining -= family_size  # update the remaning nodes
             nodes_done += family_size  # update the done nodes
             
-
         return family_network
 
     def random_social_network(self, p=0.4):
