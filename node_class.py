@@ -51,18 +51,19 @@ class Node:
         if self.immune == False:
             self.status = 'infected' # set as infected
 
-            probability_contagues = contagious_probability_age(self.age)
+            probability_contagues = contagious_probability_age()
             if probability_contagues > np.random.rand():
                 self.day_first_symptoms = day_of_first_symptoms()
                 self.day_of_heal = self.day_first_symptoms + 14
+
+                probability_death = death_probability_age(self.age)/probability_contagues # Bias Theorem for conditional probability 
+                if probability_death > np.random.rand():
+                    self.day_of_death = day_of_death()
+                else:
+                    self.day_of_death = -1
             else:
                 self.day_first_symptoms = -1 # imposible to be met
                 self.day_of_heal = 14
-
-            probability_death = death_probability_age(self.age)
-            if probability_death > np.random.rand():
-                self.day_of_death = day_of_death()
-            else:
                 self.day_of_death = -1
         else:
             pass

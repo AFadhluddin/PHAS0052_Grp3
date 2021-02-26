@@ -51,6 +51,37 @@ def main_loop(nodes_list, graph):
 
 	return nodes_list, n_infected, n_death, n_recovery
 
+def lockdowns(array_weights, day):
+	"""
+	Check if there is a lockdown
+	Inputs:
+	array_weights   Array of the weights of the graph
+	day             Day of the simulation
+	Output: array_weights
+	"""
+	updeated_array_weights = array_weights
+	change = False
+	# check if the day is an important day 
+	if day in days_lockdown_start:
+		updeated_array_weights[1] = 0
+		updeated_array_weights[4] = 0
+		change = True
+
+	if day in days_lockdown_end:
+		updeated_array_weights[1] = original_array_weights[1]
+		updeated_array_weights[4] = original_array_weights[4]
+		change = True
+
+	if day in day_school_close:
+		updeated_array_weights[3] = 0
+		change = True
+
+	if day in day_school_open:
+		updeated_array_weights[3] = updeated_array_weights[3]
+		change = True
+
+	return  updeated_array_weights, change
+
 def main_algorithm(n_simulations, n_days, n_nodes, n_initial_infected, array_network_parameters, array_weights):
 	"""
 	Creates n simulations by iterating the main loop on each day
@@ -74,19 +105,23 @@ def main_algorithm(n_simulations, n_days, n_nodes, n_initial_infected, array_net
 		# creates all the subgraphs
 		family_graph = network.family_network()
 		worker_graph = network.worker_network(array_network_parameters[0])
-		essential_network_graph = network.essential_worker_network(array_network_parameters[1])
+		essential_worker_graph = network.essential_worker_network(array_network_parameters[1])
 		student_graph = network.student_network(array_network_parameters[2])
 		random_graph = network.random_social_network(array_network_parameters[3])
 
 		# weighted sum of the network 
-		### NEED TO CHANGE FOR LOCKDOWN, PASS EVERYTHING IN THE MAIN LOOP
 		total_network = (array_weights[0]*family_graph + array_weights[1]*worker_graph +
-			array_weights[2]*essential_network_graph + array_weights[3]*student_graph +
+			array_weights[2]*essential_worker_graph + array_weights[3]*student_graph +
 			array_weights[4]*random_graph)
 
 		network.node_list = initial_infect(n_initial_infected, network.node_list) #infect the intial nodes
 		
 		for j in range(n_days):
+			array_weights, change = lockdowns(array_weights, j)
+			if change == True:
+				total_network = (array_weights[0]*family_graph + array_weights[1]*worker_graph +
+					array_weights[2]*essential_worker_graph + array_weights[3]*student_graph +
+					array_weights[4]*random_graph)
 			network.node_list, matrix_infected[i,j], matrix_death[i,j], matrix_recovery[i,j] = main_loop(network.node_list, total_network)
 
 	return matrix_infected, matrix_death, matrix_recovery
@@ -106,26 +141,63 @@ def plot_results(matrix_infected, matrix_death, matrix_recovery):
 
 	fig = plt.figure(figsize = (14, 8))
 	
+	######## Infections subplots ########
 	ax1 = fig.add_subplot(131)
 	ax1.set_title('Infections')
+
+	# plot each simulation
 	for i in range(n_simulations):
 		ax1.plot(matrix_infected[i], color='grey', linewidth=0.5,alpha = 0.5)
-	ax1.plot(average_infected, color = 'b')
+	ax1.plot(average_infected, color = 'b') # plot the average
 
+	# plot lockdowns
+	for i in range(len(days_lockdown_start)):
+		ax1.axvline(days_lockdown_start[i], color='r')
+		ax1.axvline(days_lockdown_end[i], color='r')
+
+	for i in range(len(day_school_close)):
+		ax1.axvline(day_school_close[i], color='m')
+		ax1.axvline(day_school_open[i], color='m')
+
+	######## Death subplots ########
 	ax2 = fig.add_subplot(132)
 	ax2.set_title('Deaths')
+
+	# plot each simulation
 	for i in range(n_simulations):
 		ax2.plot(matrix_death[i], color='grey', linewidth=0.5,alpha = 0.5)
-	ax2.plot(average_death, color = 'r')
+	ax2.plot(average_death, color = 'r') # plot the average
 	
+	# plot lockdowns
+	for i in range(len(days_lockdown_start)):
+		ax2.axvline(days_lockdown_start[i], color='r')
+		ax2.axvline(days_lockdown_end[i], color='r')
+
+	for i in range(len(day_school_close)):
+		ax2.axvline(day_school_close[i], color='m')
+		ax2.axvline(day_school_open[i], color='m')
+
+	######## Infections subplots ########
 	ax3 = fig.add_subplot(133)
 	ax3.set_title('Recoveries')
+
+	# plot each simulation
 	for i in range(n_simulations):
 		ax3.plot(matrix_recovery[i], color='grey', linewidth=0.5,alpha = 0.5)
-	ax3.plot(average_recovery, color = 'g')
+	ax3.plot(average_recovery, color = 'g') # plot the average
+
+	# plot lockdowns
+	for i in range(len(days_lockdown_start)):
+		ax3.axvline(days_lockdown_start[i], color='r')
+		ax3.axvline(days_lockdown_end[i], color='r')
+
+	for i in range(len(day_school_close)):
+		ax3.axvline(day_school_close[i], color='m')
+		ax3.axvline(day_school_open[i], color='m')
 
 	plt.savefig('Results.pdf')
 	return
+
 
 def save_results(matrix_infected, matrix_death, matrix_recovery):
 	"""
@@ -148,13 +220,19 @@ def save_results(matrix_infected, matrix_death, matrix_recovery):
 	return
 
 if __name__ == "__main__":
-	# set initial parameters
 	n_simulations = 10
-	n_days = 10
-	n_nodes = 1000
-	n_initial_infected = 3
-	array_network_parameters = np.array([0.001,0.001,0.001,0.001])
-	array_weights = np.array([1,1,1,1,1])
+	n_days = 150
+	n_nodes = 10000
+	n_initial_infected = 5
+	array_network_parameters = np.array([2,2,2,2,2])
+	array_weights = np.array([1,1,1,1,1,1])
+	original_array_weights = array_weights
+
+	# days of lockdown data
+	days_lockdown_start = [30, 100]
+	days_lockdown_end = [60, 130]
+	day_school_close = [30]
+	day_school_open = [65]
 
 	# call the simulations and save
 	matrix_infected, matrix_death, matrix_recovery = main_algorithm(n_simulations, n_days, n_nodes, n_initial_infected, array_network_parameters, array_weights)

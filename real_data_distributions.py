@@ -31,11 +31,22 @@ parameter_age['percentage_population'] = parameter_age['population_UK']/paramete
 parameter_day = parameter_importer('parameters_day.csv')
 
 
+#exctract vectors
 
-#parameter_age = pd.read_csv('parameters_age.csv')
-#parameter_age['percentage_population'] = parameter_age['population_UK']/parameter_age['population_UK'].sum()
+age_array = column_extractor(parameter_age, 'percentage_population')
+working_fractions = 1 - column_extractor(parameter_age, 'unemployment_rate') #PROBLEM
+essential_workers_fraction = column_extractor(parameter_age, 'proportion_of_key_workers') #PROBLEM
 
-#parameter_day = pd.read_csv('parameters_day.csv')
+
+probability_day_death = column_extractor(parameter_day, 'Probability_of_Death')
+probability_day_death = probability_day_death/np.sum(probability_day_death)
+
+probability_day_incubation = column_extractor(parameter_day, 'Incubation_Period')
+probability_day_incubation = probability_day_incubation/np.sum(probability_day_incubation)
+
+death_probability_age_array = column_extractor(parameter_age, 'infection_fatality_ratio')
+
+infectivity_age = column_extractor(parameter_day, 'Probability_of_infecting')
 
 ########### Generation of the Node ###########
 
@@ -44,7 +55,6 @@ def set_age():
 	Calulate the age of the person from the real-data distribution 
 	Return: Age_band    band age of the node (i.e. number of row in the df)
 	""" 
-	age_array = column_extractor(parameter_age, 'percentage_population')
 	age_band = 0
 	probability_span = 0
 	random_number = np.random.rand()
@@ -74,12 +84,10 @@ def set_job(age_band):
 	
 	else:
 		# set unemplyed
-		working_fractions = 1 - column_extractor(parameter_age, 'unemployment_rate')
 		if np.random.rand() > working_fractions[age_band]:
 			job = 'unemployed'
 		
 		# set essential workers
-		essential_workers_fraction = column_extractor(parameter_age, 'unemployment_rate')
 		if job == 'worker':
 			if np.random.rand() < essential_workers_fraction[age_band]:
 				job = 'essential_worker'
@@ -125,12 +133,9 @@ def death_probability_age(age):
 	Calulate the overall probability of death
 	Inputs:
 	age                Age of the node
-	status             Status of the node
-	days_from_infection Days since the infection
 	Return: Probability of death
 	"""
-	probability_age = column_extractor(parameter_age, 'infection_fatality_ratio')
-	prob = probability_age[age]
+	prob = death_probability_age_array[age]
 	return prob
 
 def hosp_probability_age(age):
@@ -138,22 +143,16 @@ def hosp_probability_age(age):
 	Calulate the overall probability of hospitalisation
 	Inputs:
 	age                Age of the node
-	status             Status of the node
-	days_from_infection Days since the infection
-	Return: Probability of death
+	Return: Probability of hospitalisation
 	"""
 	prob = 0.1
 	return prob
 
 
-def contagious_probability_age(age):
+def contagious_probability_age():
 	"""
 	Calulate the probability of becoming contageus
-	Inputs:
-	age                Age of the node
-	status             Status of the node
-	days_from_infection Days since the infection
-	Return: Probability of death
+	Return: Probability of show symptoms
 	"""
 	prob = 0.5#*np.random.normal(5, 7)
 	return prob
@@ -162,37 +161,34 @@ def day_of_death():
 	"""
 	Returns the day of death from the day of infection
 	"""
-	probability_day = column_extractor(parameter_day, 'Probability_of_Death')
-	probability_day = probability_day/np.sum(probability_day)
 	day = 0
 	probability_span = 0
 	random_number = np.random.rand()
-	for i in range(len(probability_day)):
-		if random_number >= probability_span and random_number < (probability_span + probability_day[i]):
+	for i in range(len(probability_day_death)):
+		if random_number >= probability_span and random_number < (probability_span + probability_day_death[i]):
 			day = i
-		probability_span += probability_day[i]
+			break
+		probability_span += probability_day_death[i]
 	return day
 
 def day_of_first_symptoms():
 	"""
 	Returns the day of the first symptoms from the day of infection
 	"""
-	probability_day = column_extractor(parameter_day, 'Incubation_Period')
-	probability_day = probability_day/np.sum(probability_day)
 	day = 0
 	probability_span = 0
 	random_number = np.random.rand()
-	for i in range(len(probability_day)):
-		if random_number >= probability_span and random_number < (probability_span + probability_day[i]):
+	for i in range(len(probability_day_incubation)):
+		if random_number >= probability_span and random_number < (probability_span + probability_day_incubation[i]):
 			day = i
-		probability_span += probability_day[i]
+			break
+		probability_span += probability_day_incubation[i]
 	return day 
 
 def infectivity_factor(day_from_infection):
     """
     Calculate the infectivity of the person
     """
-    infectivity_age = column_extractor(parameter_day, 'Probability_of_infecting')
     if day_from_infection < len(infectivity_age):
     	infectivity = infectivity_age[day_from_infection]
     else:
