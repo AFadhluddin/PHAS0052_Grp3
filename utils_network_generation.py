@@ -139,3 +139,28 @@ def return_nodes_list_distributions(nodes_list):
     number_student = np.sum(student_distribution)
 
     return worker_index, essential_worker_index, student_index, total_number_worker, number_worker, number_essential_worker, number_student, student_index_occurrence, essential_worker_index_occurrence, worker_index_occurrence
+
+
+def avg_deg(graph): 
+    """
+    Returns average degree of the graph
+
+    Input:
+    graph (2d array)   adjacency matrix
+
+    Output:
+    avg (float)    average degree
+    
+    """
+
+    num_nodes = len(graph[0,:])
+    degree_list = []
+    
+    for i in range(num_nodes):
+        n=np.sum(graph[i,:])
+        degree_list.append(n)
+
+    avg = np.mean(np.array(degree_list))
+    return avg
+
+

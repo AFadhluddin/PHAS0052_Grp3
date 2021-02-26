@@ -31,6 +31,7 @@ class Node:
         self.contagious = False
         self.day_from_infection = 0
         self.immune = False
+        self.c = False
         self.vaccinated = False
 
         # set the job of the node

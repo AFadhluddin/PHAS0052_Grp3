@@ -262,7 +262,7 @@ def main_generation(number_nodes):
     # Remove isolated nodes
     family_network_nx.remove_nodes_from(list(nx.isolates(family_network_nx)))
     deg_family = degree_distribution(family_network_nx)
-    
+
     worker_network_nx = nx.convert_matrix.from_numpy_matrix(
         network_init.worker_network(2))
     # Remove isolated nodes
