@@ -195,10 +195,10 @@ class Network_Generation:
         essential_worker_occurence_index = self.essential_worker_occurence_index
 
         # enumerate over the occurences
-        translation_essential_random = []
+        translate = []
         for i, n in enumerate(essential_worker_occurence_index):
             if n != 0:
-                translation_essential_random.append(i)
+                translate.append(i)
         
         # Use NetworK BA model to create network
         G_BA_essential_social = nx.barabasi_albert_graph(self.number_nodes, m)
@@ -210,18 +210,16 @@ class Network_Generation:
             essential_social_network[edge[0], edge[1]] = 1
             essential_social_network[edge[1], edge[0]] = 1
 
-                # Set diagonal elements to 0
-        np.fill_diagonal(essential_social_network, 0)
-
         for i, row in enumerate(essential_social_network):
             for j, elem in enumerate(row):
                 if elem == 1:
-                    if i not in translation_essential_random and j not in translation_essential_random:
+                    if i not in translate and j not in translate:
                         essential_social_network[i,j] = 0
 
         
 
-
+        # Set diagonal elements to 0
+        np.fill_diagonal(essential_social_network, 0)
 
         return essential_social_network 
 
@@ -264,7 +262,7 @@ def main_generation(number_nodes):
     # Remove isolated nodes
     family_network_nx.remove_nodes_from(list(nx.isolates(family_network_nx)))
     deg_family = degree_distribution(family_network_nx)
-
+    
     worker_network_nx = nx.convert_matrix.from_numpy_matrix(
         network_init.worker_network(2))
     # Remove isolated nodes
@@ -379,7 +377,7 @@ def main_generation(number_nodes):
 
     # Plotting Degree Distributions
     plt.figure(13)
-    plt.hist(deg_essential_random, width=0.80, color="black")
+    plt.hist(deg_essential_random, width=0.80, color="red")
     plt.title("Essential Random Degree Histogram")
     plt.ylabel("Count")
     plt.xlabel("Degree")
@@ -392,7 +390,7 @@ def main_generation(number_nodes):
     plt.xlabel("Degree")
 
 if __name__ == "__main__":
-    number_nodes = 150
+    number_nodes = 300
     main_generation(number_nodes)
     plt.show()
 
