@@ -164,3 +164,16 @@ def avg_deg(graph):
     return avg
 
 
+
+
+
+
+
+'''
+node_list = node_generation(100)
+_,t1,_,_,_,t2,_,_,t3,_ = return_nodes_list_distributions(node_list)
+
+print("First", t1)
+print("Second", t2)
+print("Third", t3)
+'''

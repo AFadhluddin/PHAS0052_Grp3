@@ -51,7 +51,7 @@ def main_loop(nodes_list, graph):
 
 	return nodes_list, n_infected, n_death, n_recovery
 
-def main_algorithm(n_simulations, n_days, n_nodes, n_initial_infected, array_network_parameters, array_weights, num_vaccinations):
+def main_algorithm(n_simulations, n_days, n_nodes, n_initial_infected, array_network_parameters, array_weights):#, num_vaccinations):
 	"""
 	Creates n simulations by iterating the main loop on each day
 	Inputs:
@@ -66,7 +66,7 @@ def main_algorithm(n_simulations, n_days, n_nodes, n_initial_infected, array_net
 	matrix_infected = np.zeros((n_simulations, n_days))
 	matrix_death = np.zeros((n_simulations, n_days))
 	matrix_recovery = np.zeros((n_simulations, n_days))
-	vaccination = np.zeros((n_simulations, n_days))
+	#vaccination = np.zeros((n_simulations, n_days))
 
 
 	for i in range(n_simulations):
@@ -80,39 +80,34 @@ def main_algorithm(n_simulations, n_days, n_nodes, n_initial_infected, array_net
 		essential_network_graph = network.essential_worker_network(array_network_parameters[1])
 		student_graph = network.student_network(array_network_parameters[2])
 		random_graph = network.random_social_network(array_network_parameters[3])
-		essential_random_graph = network.essential_random_network(3)
+		#essential_random_graph = network.essential_random_network(3)
 
 		# weighted sum of the network 
 		### NEED TO CHANGE FOR LOCKDOWN, PASS EVERYTHING IN THE MAIN LOOP
 		total_network = (array_weights[0]*family_graph + array_weights[1]*worker_graph +
 			array_weights[2]*essential_network_graph + array_weights[3]*student_graph +
-			array_weights[4]*random_graph + essential_random_graph)
+			array_weights[4]*random_graph) # + essential_random_graph)
 
 		network.node_list = initial_infect(n_initial_infected, network.node_list) #infect the intial nodes
 		
 		for j in range(n_days):
 			network.node_list, matrix_infected[i,j], matrix_death[i,j], matrix_recovery[i,j] = main_loop(network.node_list, total_network)
-			vaccination[i,j] = 0
+			#vaccination[i,j] = 0
 			
-			if j > int(n_days/2):
-				day_vacc_count = 0
-				for k in network.node_list:
-					if k.vaccinated == False and day_vacc_count < num_vaccinations:
-						k.vaccinate()
-						day_vacc_count += 1
-				vaccination[i,j] = day_vacc_count
+			#if j > int(n_days/2):
+			#	day_vacc_count = 0
+			#	for k in network.node_list:
+			#		if k.vaccinated == False and day_vacc_count < num_vaccinations:
+			#			k.vaccinate()
+			#			day_vacc_count += 1
+			#	vaccination[i,j] = day_vacc_count
 			
 			
-			#for p in network.node_list:
-				#vacc_cnt = []
-				#if p.vaccinated == True:
-					#vacc_cnt.append(1)
-				#vaccination[i,j] = sum(vacc_cnt)
-				
 
-	return matrix_infected, matrix_death, matrix_recovery, vaccination
 
-def plot_results(matrix_infected, matrix_death, matrix_recovery, vaccination):
+	return matrix_infected, matrix_death, matrix_recovery#, vaccination
+
+def plot_results(matrix_infected, matrix_death, matrix_recovery):#, vaccination):
 	"""
 	Plot the simulation results and save the plots
 	Inputs: 
@@ -127,30 +122,30 @@ def plot_results(matrix_infected, matrix_death, matrix_recovery, vaccination):
 
 	fig = plt.figure(figsize = (14, 8))
 	
-	ax1 = fig.add_subplot(141)
+	ax1 = fig.add_subplot(131)
 	ax1.set_title('Infections')
 	for i in range(n_simulations):
 		ax1.plot(matrix_infected[i], color='grey', linewidth=0.5,alpha = 0.5)
 	ax1.plot(average_infected, color = 'b')
 
-	ax2 = fig.add_subplot(142)
+	ax2 = fig.add_subplot(132)
 	ax2.set_title('Deaths')
 	for i in range(n_simulations):
 		ax2.plot(matrix_death[i], color='grey', linewidth=0.5,alpha = 0.5)
 	ax2.plot(average_death, color = 'r')
 	
-	ax3 = fig.add_subplot(143)
+	ax3 = fig.add_subplot(133)
 	ax3.set_title('Recoveries')
 	for i in range(n_simulations):
 		ax3.plot(matrix_recovery[i], color='grey', linewidth=0.5,alpha = 0.5)
 	ax3.plot(average_recovery, color = 'g')
 
-	ax4 = fig.add_subplot(144)
-	for i in range(n_simulations):
-		ax4.set_title('Vaccinations')
-	ax4.plot(vaccination[i], color='black', linewidth=0.5,alpha = 0.5)
+	#ax4 = fig.add_subplot(144)
+	#for i in range(n_simulations):
+	#	ax4.set_title('Vaccinations')
+	#ax4.plot(vaccination[i], color='black', linewidth=0.5,alpha = 0.5)
 
-	plt.savefig('Results.pdf')
+	plt.savefig('Results_test.pdf')
 	return
 
 def save_results(matrix_infected, matrix_death, matrix_recovery):
@@ -176,16 +171,16 @@ def save_results(matrix_infected, matrix_death, matrix_recovery):
 if __name__ == "__main__":
 	# set initial parameters
 	n_simulations = 10
-	n_days = 30
-	n_nodes = 400
-	n_initial_infected = 3
+	n_days = 35
+	n_nodes = 1000
+	n_initial_infected = 1000
 	array_network_parameters = np.array([3,3,3,3])
 	array_weights = np.array([1,1,1,1,1])
-	num_vaccinations = 3
+	#num_vaccinations = 3
 
 	# call the simulations and save
-	matrix_infected, matrix_death, matrix_recovery, vacc = main_algorithm(n_simulations, n_days, n_nodes, n_initial_infected, array_network_parameters, array_weights, num_vaccinations)
-	plot_results(matrix_infected, matrix_death, matrix_recovery, vacc)
+	matrix_infected, matrix_death, matrix_recovery = main_algorithm(n_simulations, n_days, n_nodes, n_initial_infected, array_network_parameters, array_weights)#, num_vaccinations)
+	plot_results(matrix_infected, matrix_death, matrix_recovery)#, vacc)
 	save_results(matrix_infected, matrix_death, matrix_recovery)
 
 
