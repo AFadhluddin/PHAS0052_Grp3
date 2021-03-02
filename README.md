@@ -1,6 +1,3 @@
-# PHAS0052_Grp3
-Group Project for PHAS0052. Project title: 'Statistical analysis of COVID-19 transmissions and intervention strategies'
-
 # PHAS0052 Group 3 Project
 
 Group Project for PHAS0052. Project title: 'Statistical analysis of COVID-19 transmissions and intervention strategies'
