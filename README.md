@@ -7,7 +7,7 @@ We then are implementing government measures to see how the spread of covid-19 c
 
 ## Installation
 
-To instal this simulation tool clone the repository using git in the directory you want it to be in.
+To install this simulation tool clone the repository using git in the directory you want it to be in.
 
 ```bash
 git clone https://github.com/AFadhluddin/PHAS0052_Grp3.git
