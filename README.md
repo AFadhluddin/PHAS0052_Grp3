@@ -15,7 +15,7 @@ git clone https://github.com/AFadhluddin/PHAS0052_Grp3.git
 
 ## Usage
 
-To run a sinulation, once your ideal parameters have been entered in the main loop run this in the cli.
+To run a simulation, once your ideal parameters have been entered in the main loop run this in the cli.
 
 - if local machine python version is 3+ :
 
