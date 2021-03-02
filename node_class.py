@@ -29,7 +29,7 @@ class Node:
         # Usally at the begining everyone is healthy, set inital conditions
         self.status = 'healthy'
         self.contagious = False
-        self.day_from_infection = 0
+        self.day_from_infection = -1
         self.immune = False
         self.vaccinated = False
 
@@ -48,24 +48,23 @@ class Node:
         """
         Infect the node if it's not immune
         """
-        if self.immune == False:
-            self.status = 'infected' # set as infected
+        self.status = 'infected' # set as infected
+        self.day_from_infection = 0
 
-            probability_contagues = contagious_probability_age(self.age)
-            if probability_contagues > np.random.rand():
-                self.day_first_symptoms = day_of_first_symptoms()
-                self.day_of_heal = self.day_first_symptoms + 14
-            else:
-                self.day_first_symptoms = -1 # imposible to be met
-                self.day_of_heal = 14
+        probability_contagues = contagious_probability_age()
+        if probability_contagues > np.random.rand():
+            self.day_first_symptoms = day_of_first_symptoms()
+            self.day_of_heal = self.day_first_symptoms + 14
 
-            probability_death = death_probability_age(self.age)
+            probability_death = death_probability_age(self.age)/probability_contagues # Bias Theorem for conditional probability 
             if probability_death > np.random.rand():
                 self.day_of_death = day_of_death()
             else:
                 self.day_of_death = -1
         else:
-            pass
+            self.day_first_symptoms = -1 # imposible to be met
+            self.day_of_heal = 14
+            self.day_of_death = -1
 
     def kill(self):
         """
@@ -74,6 +73,7 @@ class Node:
         self.status = 'dead'
         self.contagious = False
         self.day_first_symptoms = -1
+        self.day_from_infection = -1
         self.day_of_heal = -1 
         self.day_of_death = -1
 
@@ -86,7 +86,7 @@ class Node:
         # everything set back to normal 
         self.tested = False
         self.contagious = False
-        self.day_from_infection = 0
+        self.day_from_infection = -1
         self.day_first_symptoms = -1
         self.day_of_heal = -1 
 
@@ -122,7 +122,7 @@ class Node:
         Vaccinate the node
         """
         self.vaccinated = True
-        immune_fraction_vac = 0.9 # fraction of immune people after vacination
+        immune_fraction_vac = 0.83 # fraction of immune people after vacination (from data)
         if random.rand() <= immune_fraction_vac:
             self.immune = True
 
