@@ -2,6 +2,31 @@ import os
 import glob
 import pandas as pd
 import numpy as np
+import sys
+
+def pathandfile(filename):
+    """
+    Function that prepends the current file path to the filename
+
+    Input:
+    filename(str): filename 
+
+    Output:
+    pathandfile(str): path and file name
+    """
+
+    # get the current file path
+    path = os.getcwd()
+
+    #Adding the last bracket
+    if not path.endswith(os.path.sep):
+        path += os.path.sep
+
+    # Concatenating the filename
+    pathandfile = path + filename
+
+    return pathandfile
+
 
 def csv_to_dataframe(path):
     """

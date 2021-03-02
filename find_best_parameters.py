@@ -120,7 +120,7 @@ if __name__ == "__main__":
 
 	######## Import data ########
 
-	gov_data = parameter_importer('gov_data_fin.csv')
+	gov_data = parameter_importer(pathandfile('gov_data_fin.csv'))
 
 	data_infections = column_extractor(gov_data, 'percentage_new_case')[65:65+n_days]
 	data_death = column_extractor(gov_data, 'percentage_new_death')[65:65+n_days]

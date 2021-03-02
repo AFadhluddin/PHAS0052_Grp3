@@ -209,9 +209,9 @@ def save_results(matrix_infected, matrix_death, matrix_recovery, matrix_vaccinat
 	return
 
 if __name__ == "__main__":
-	n_simulations = 5
+	n_simulations = 20
 	n_days = 60
-	n_nodes = 10000 
+	n_nodes = 1000 
 	n_initial_infected = 8
 	array_network_parameters = np.array([2,2,2,2,2])
 	array_weights = np.array([1,1,1,1,1,1])

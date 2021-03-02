@@ -5,6 +5,8 @@ import networkx as nx
 from networkx import convert_matrix
 import pathlib
 import pandas as pd
+import os
+import glob
 
 from data_importing_tool import *
 
@@ -18,17 +20,15 @@ from data_importing_tool import *
 #parameter_by_age = parameter_importer(path, file_name)
 #parameter_by_age = csv_to_dataframe(path)
 
-
-
 # create a dataframe for parameter where the index is age
-parameter_age = parameter_importer('parameters_age.csv')
+parameter_age = parameter_importer(pathandfile('parameters_age.csv'))
 
 # this is to form a new column 'percentage_population' that shows the percentage of the population in certain age range, in case you need it
 parameter_age['percentage_population'] = parameter_age['population_UK']/parameter_age['population_UK'].sum()
 
 
 # create a dataframe for parameter where the index is day
-parameter_day = parameter_importer('parameters_day.csv')
+parameter_day = parameter_importer(pathandfile('parameters_day.csv'))
 
 
 #exctract vectors
