@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from networkx import convert_matrix
 import pandas as pd
+from tqdm import tqdm
 
 from network_generation import *
 from interventions import *
@@ -70,7 +71,7 @@ def main_algorithm(n_simulations, n_days, n_nodes, n_initial_infected, array_net
 	matrix_recovery = np.zeros((n_simulations, n_days))
 	matrix_vaccination = np.zeros((n_simulations, n_days))
 
-	for i in range(n_simulations):
+	for i in tqdm(range(n_simulations)):
 
 		network = Network_Generation(n_nodes) # generate the network
 
