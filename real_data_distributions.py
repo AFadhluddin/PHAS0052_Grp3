@@ -152,13 +152,12 @@ def hosp_probability_age(age):
 	prob = 0.1
 	return prob
 
-
 def contagious_probability_age():
 	"""
 	Calulate the probability of becoming contageus
 	Return: Probability of show symptoms
 	"""
-	prob = 0.5#*np.random.normal(5, 7)
+	prob = 0.5 #*np.random.normal(5, 7)
 	return prob
 
 def day_of_death():
