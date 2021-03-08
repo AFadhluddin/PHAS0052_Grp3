@@ -67,16 +67,16 @@ def total_nodes_sq_mtrx_from_job_graph(full_size_graph, job_graph, number_occure
     full_size_graph (n array)  filled array mapping job_graph
     """
 
-    # enumerate over the occurences
-    translate = []
+    #enumerate over the occurences
+    translate_array = []
     for i, n in enumerate(number_occurences):
         if n != 0:
-            translate.append(i+1)
+            translate_array.append(i+1)
 
     for i, row in enumerate(job_graph):
         for j, n in enumerate(row):
             if n != 0:
-                full_size_graph[translate[j]-1][translate[i]-1] = 1
+                full_size_graph[translate_array[j]-1][translate_array[i]-1] = 1
 
 
     # Remove the diagonal elements
@@ -115,15 +115,12 @@ def return_nodes_list_distributions(nodes_list):
     # Loop over nodes list and populate respective arrays for the job type
     for i, node in enumerate(nodes_list):
         if node.job == 'worker':
-            worker_distributon[node.age] += 1
             worker_index[i] = 1
 
         elif node.job == 'essential_worker':
-            essential_worker_distribution[node.age] += 1
             essential_worker_index[i] = 1
 
         elif node.job == 'student':
-            student_distribution[node.age] += 1
             student_index[i] = 1
 
     # Create the occurence arrays
@@ -131,11 +128,11 @@ def return_nodes_list_distributions(nodes_list):
     essential_worker_index_occurrence = count_list(essential_worker_index)
     student_index_occurrence = count_list(student_index)
 
-    # Variabls holding outputs created in function
-    total_worker_distribution = worker_distributon + essential_worker_distribution
-    total_number_worker = np.sum(total_worker_distribution)
-    number_worker = np.sum(worker_distributon)
-    number_essential_worker = np.sum(essential_worker_distribution)
-    number_student = np.sum(student_distribution)
-
-    return worker_index, essential_worker_index, student_index, total_number_worker, number_worker, number_essential_worker, number_student, student_index_occurrence, essential_worker_index_occurrence, worker_index_occurrence
+    # Variables holding outputs created in function
+    number_worker = np.sum(worker_index)
+    number_essential_worker = np.sum(essential_worker_index)
+    number_student = np.sum(student_index)
+    number_total_worker = number_essential_worker + number_worker
+    
+    
+    return worker_index, essential_worker_index, student_index, number_total_worker, number_worker, number_essential_worker, number_student, student_index_occurrence, essential_worker_index_occurrence, worker_index_occurrence

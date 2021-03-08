@@ -44,8 +44,8 @@ def simulation(n_days, n_nodes, n_initial_infected, array_network_parameters, ar
 		array_weights[2]*essential_worker_graph + array_weights[3]*student_graph + 
 		array_weights[4]*random_graph + array_weights[5]*essential_random_graph)
 	
-	#df_initial_graph = pd.DataFrame(data=total_network) 
-	#df_initial_graph.to_csv("initial_network.csv")
+	df_initial_graph = pd.DataFrame(data=total_network) 
+	df_initial_graph.to_csv("initial_network.csv")
 	#df_family_graph = pd.DataFrame(data=family_graph) 
 	#df_family_graph.to_csv("family_graph.csv")
 	#df_work_graph = pd.DataFrame(data=worker_graph) 
@@ -469,9 +469,9 @@ def filter_non_spread(matrix_infected, matrix_death, matrix_recovery, matrix_vac
 	return matrix_infected, matrix_death, matrix_recovery, matrix_vaccination, n_non_spread
 
 if __name__ == "__main__":
-	n_simulations = 20
+	n_simulations = 3
 	n_days = 90
-	n_nodes = 5000 
+	n_nodes = 1000 
 	n_initial_infected = 8
 	array_network_parameters = np.array([2,2,2,2,2])
 	array_weights = np.array([0.7,0.1,0.1,0.1,0.2,0.2])
@@ -484,7 +484,7 @@ if __name__ == "__main__":
 	day_school_open = []
 
 	# call the simulations and save
-	matrix_infected, matrix_death, matrix_recovery, matrix_vaccination = main_algorithm(n_simulations, n_days, n_nodes, n_initial_infected, array_network_parameters, array_weights)
+	matrix_infected, matrix_death, matrix_recovery, matrix_vaccination = main_algorithm_fast(n_simulations, n_days, n_nodes, n_initial_infected, array_network_parameters, array_weights)
 	for i in range(n_simulations):
 		matrix_infected[i,0] += n_initial_infected
 	matrix_infected, matrix_death, matrix_recovery, matrix_vaccination, n_non_spread = filter_non_spread(matrix_infected, matrix_death, matrix_recovery, matrix_vaccination)
