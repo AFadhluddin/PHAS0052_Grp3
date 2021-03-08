@@ -210,7 +210,7 @@ def save_results(matrix_infected, matrix_death, matrix_recovery, matrix_vaccinat
 	return
 
 if __name__ == "__main__":
-	n_simulations = 20
+	n_simulations = 2
 	n_days = 60
 	n_nodes = 1000 
 	n_initial_infected = 8
