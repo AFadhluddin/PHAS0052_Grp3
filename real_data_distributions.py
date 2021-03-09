@@ -111,7 +111,6 @@ def set_family_size():
 		probability_span += family_size_array[i]
 	return family_size 
 
-
 ########### Main loop ###########
 
 
@@ -130,7 +129,6 @@ def initial_infect(n_infected, nodes_list):
 			nodes_list[random_index].infect()
 			actually_infected +=1
 	return nodes_list
-
 
 def death_probability_age(age):
 	"""
