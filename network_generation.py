@@ -6,6 +6,7 @@ import networkx as nx
 from networkx import convert_matrix
 import pathlib
 import collections
+import copy
 from data_importing_tool import *
 from node_class import *
 from real_data_distributions import *
@@ -41,7 +42,7 @@ class Network_Generation:
         family_network (2d array)  matrix of the family network
         """
 
-        family_network = self.total_init_matrix
+        family_network = copy.deepcopy(self.total_init_matrix)
         nodes_remaining = self.number_nodes
         nodes_done = 0
         while nodes_remaining != 0:  # while it is possible to generate nodes
@@ -73,7 +74,7 @@ class Network_Generation:
         # Use NetworK BA model to create network
         G_BA_social = nx.barabasi_albert_graph(self.number_nodes, m)
 
-        social_network = self.total_init_matrix
+        social_network = copy.deepcopy(self.total_init_matrix)
 
         # Decompose nx graph to matrix
         for edge in G_BA_social.edges():
@@ -99,7 +100,7 @@ class Network_Generation:
 
         # Initialising the job and population matrices
         worker_network = np.zeros((number_worker, number_worker))
-        worker_total_network = self.total_init_matrix
+        worker_total_network = copy.deepcopy(self.total_init_matrix)
 
         # Using NetworkX to make a free scale graph
         G_BA_worker = nx.barabasi_albert_graph(number_worker, m)
@@ -132,7 +133,7 @@ class Network_Generation:
         # Initialising the job and population matrices
         essential_worker_network = np.zeros(
             (number_essential_worker, number_essential_worker))
-        essential_worker_total_network = self.total_init_matrix
+        essential_worker_total_network = copy.deepcopy(self.total_init_matrix)
 
         # Using NetworkX to make a free scale graph
         G_BA_essential_worker = nx.barabasi_albert_graph(number_essential_worker, m)
@@ -164,7 +165,7 @@ class Network_Generation:
 
         # Initialising the job and population matrices
         student_network = np.zeros((number_student, number_student))
-        student_total_network = self.total_init_matrix
+        student_total_network = copy.deepcopy(self.total_init_matrix)
 
          # Using NetworkX to make a free scale graph
         G_BA_student = nx.barabasi_albert_graph(number_student, m)
@@ -203,7 +204,7 @@ class Network_Generation:
         # Use NetworK BA model to create network
         G_BA_essential_social = nx.barabasi_albert_graph(self.number_nodes, m)
 
-        essential_social_network = self.total_init_matrix
+        essential_social_network = copy.deepcopy(self.total_init_matrix)
 
         # Decompose nx graph to matrix
         for edge in G_BA_essential_social.edges():

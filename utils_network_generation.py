@@ -67,16 +67,16 @@ def total_nodes_sq_mtrx_from_job_graph(full_size_graph, job_graph, number_occure
     full_size_graph (n array)  filled array mapping job_graph
     """
 
-    # enumerate over the occurences
-    translate = []
+    #enumerate over the occurences
+    translate_array = []
     for i, n in enumerate(number_occurences):
         if n != 0:
-            translate.append(i+1)
+            translate_array.append(i+1)
 
     for i, row in enumerate(job_graph):
         for j, n in enumerate(row):
             if n != 0:
-                full_size_graph[translate[j]-1][translate[i]-1] = 1
+                full_size_graph[translate_array[j]-1][translate_array[i]-1] = 1
 
 
     # Remove the diagonal elements

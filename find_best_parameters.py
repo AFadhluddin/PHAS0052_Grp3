@@ -39,6 +39,9 @@ def main_parameters_iteration(matrix_parameters, n_parameters_combinations, n_si
 
 	return matrix_averages_infected, matrix_averages_death, matrix_averages_recovery
 
+def save_results_parameters(matrix_averages_infected, matrix_averages_death, matrix_averages_recovery):
+	
+
 def plot_results_parameters(matrix_averages_infected, matrix_averages_death, matrix_averages_recovery, n_nodes):
 	"""
 	Plot the simulation results and save the plots
