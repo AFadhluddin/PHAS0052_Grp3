@@ -469,9 +469,9 @@ def filter_non_spread(matrix_infected, matrix_death, matrix_recovery, matrix_vac
 	return matrix_infected, matrix_death, matrix_recovery, matrix_vaccination, n_non_spread
 
 if __name__ == "__main__":
-	n_simulations = 3
+	n_simulations = 10
 	n_days = 90
-	n_nodes = 1000 
+	n_nodes = 5000 
 	n_initial_infected = 8
 	array_network_parameters = np.array([2,2,2,2,2])
 	array_weights = np.array([0.7,0.1,0.1,0.1,0.2,0.2])
