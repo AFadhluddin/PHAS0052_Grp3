@@ -136,3 +136,18 @@ def return_nodes_list_distributions(nodes_list):
     
     
     return worker_index, essential_worker_index, student_index, number_total_worker, number_worker, number_essential_worker, number_student, student_index_occurrence, essential_worker_index_occurrence, worker_index_occurrence
+
+def degree_distribution(nx_graph):
+    """
+    Retruns the degrees and the counts of the graph
+
+    Inputs:
+    nx_graph (NetworkX graph object)  nx graph
+
+    Outputs:
+
+    deg    degrees of the graph
+    """
+    degrees = [nx_graph.degree(n) for n in nx_graph.nodes()]
+
+    return degrees

@@ -15,7 +15,7 @@ def cumulative(matrix):
 		for j in range(n_days):
 			cumulative_matrix[i,j + 1] = matrix[i,j] + cumulative_matrix[i,j]
 	return cumulative_matrix
-
+	
 def plot_results(name_file, matrix_infected, matrix_death, matrix_recovery, matrix_vaccination, plot_lockdowns = False):
 	"""
 	Plot the simulation results and save the plots
@@ -109,7 +109,7 @@ def plot_results(name_file, matrix_infected, matrix_death, matrix_recovery, matr
 
 	plt.savefig(name_file)
 	return
-
+	
 def plot_results_parameters(name_file, matrix_averages_infected, matrix_averages_death, matrix_averages_recovery, matrix_averages_vaccination, plot_lockdowns = False):
 	"""
 	Plot the simulation results and save the plots

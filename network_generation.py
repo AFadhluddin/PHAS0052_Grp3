@@ -224,21 +224,6 @@ class Network_Generation:
 
         return essential_social_network 
 
-
-def degree_distribution(nx_graph):
-    """
-    Retruns the degrees and the counts of the graph
-
-    Inputs:
-    nx_graph (NetworkX graph object)  nx graph
-
-    Outputs:
-
-    deg    degrees of the graph
-    """
-    degrees = [nx_graph.degree(n) for n in nx_graph.nodes()]
-
-    return degrees
         
 
 def main_generation(number_nodes):

@@ -5,7 +5,7 @@ import networkx as nx
 from networkx import convert_matrix
 import pandas as pd
 from tqdm import tqdm
-
+from utils_network_generation import *
 from network_generation import *
 from interventions import *
 
@@ -32,17 +32,37 @@ def simulation(n_days, n_nodes, n_initial_infected, array_network_parameters, ar
 
 	# creates all the subgraphs
 	family_graph = network.family_network()
+	deg_family = degree_distribution(nx.convert_matrix.from_numpy_matrix(
+        family_graph))
+		
 	worker_graph = network.worker_network(array_network_parameters[0])
+	deg_family = degree_distribution(nx.convert_matrix.from_numpy_matrix(
+        worker_graph))
+
 	essential_worker_graph = network.essential_worker_network(array_network_parameters[1])
+	deg_family = degree_distribution(nx.convert_matrix.from_numpy_matrix(
+        essential_worker_graph))
+
 	student_graph = network.student_network(array_network_parameters[2])
+	deg_family = degree_distribution(nx.convert_matrix.from_numpy_matrix(
+        student_graph))
+
 	random_graph = network.random_social_network(array_network_parameters[3])
+	deg_family = degree_distribution(nx.convert_matrix.from_numpy_matrix(
+        random_graph))
+
 	essential_random_graph = network.essential_random_network(array_network_parameters[4])
+	deg_family = degree_distribution(nx.convert_matrix.from_numpy_matrix(
+        essential_random_graph))
 
 	# weighted sum of the network 
 	original_array_weights = array_weights
 	total_network = (array_weights[0]*family_graph + array_weights[1]*worker_graph + 
 		array_weights[2]*essential_worker_graph + array_weights[3]*student_graph + 
 		array_weights[4]*random_graph + array_weights[5]*essential_random_graph)
+
+	deg_total_network = degree_distribution(nx.convert_matrix.from_numpy_matrix(
+        total_network))
 	
 	df_initial_graph = pd.DataFrame(data=total_network) 
 	df_initial_graph.to_csv("initial_network.csv")
@@ -289,16 +309,37 @@ def main_algorithm(n_simulations, n_days, n_nodes, n_initial_infected, array_net
 
 		# creates all the subgraphs
 		family_graph = network.family_network()
+		deg_family = degree_distribution(nx.convert_matrix.from_numpy_matrix(
+			family_graph))
+			
 		worker_graph = network.worker_network(array_network_parameters[0])
+		deg_family = degree_distribution(nx.convert_matrix.from_numpy_matrix(
+			worker_graph))
+
 		essential_worker_graph = network.essential_worker_network(array_network_parameters[1])
+		deg_family = degree_distribution(nx.convert_matrix.from_numpy_matrix(
+			essential_worker_graph))
+
 		student_graph = network.student_network(array_network_parameters[2])
+		deg_family = degree_distribution(nx.convert_matrix.from_numpy_matrix(
+			student_graph))
+
 		random_graph = network.random_social_network(array_network_parameters[3])
+		deg_family = degree_distribution(nx.convert_matrix.from_numpy_matrix(
+			random_graph))
+
 		essential_random_graph = network.essential_random_network(array_network_parameters[4])
+		deg_family = degree_distribution(nx.convert_matrix.from_numpy_matrix(
+			essential_random_graph))
 
 		# weighted sum of the network 
-		total_network = (array_weights[0]*family_graph + array_weights[1]*worker_graph +
-			array_weights[2]*essential_worker_graph + array_weights[3]*student_graph +
+		original_array_weights = array_weights
+		total_network = (array_weights[0]*family_graph + array_weights[1]*worker_graph + 
+			array_weights[2]*essential_worker_graph + array_weights[3]*student_graph + 
 			array_weights[4]*random_graph + array_weights[5]*essential_random_graph)
+
+		deg_total_network = degree_distribution(nx.convert_matrix.from_numpy_matrix(
+			total_network))
 
 		network.node_list = initial_infect(n_initial_infected, network.node_list) #infect the intial nodes
 		

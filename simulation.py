@@ -14,7 +14,7 @@ from data_analysis import *
 
 if __name__ == "__main__":
 	
-	n_simulations = 5
+	n_simulations = 10
 	n_days = 90
 	n_nodes = 1000
 	n_initial_infected = 8
