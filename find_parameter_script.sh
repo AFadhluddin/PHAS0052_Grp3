@@ -31,7 +31,7 @@ pip3 install tqdm
 
 
 # Runnning the job
-python3 <path to main_loop.py file>/simulation.py
+python3 <path to main_loop.py file>/find_best_parameters.py
 
 # Preferably, tar-up (archive) all output files onto the shared scratch area
 tar -zcvf $HOME/Scratch/files_from_job_$JOB_ID.tar.gz $TMPDIR
