@@ -370,30 +370,23 @@ def main_algorithm(n_simulations, n_days, n_nodes, n_initial_infected, array_net
 		np.savetxt("essential_random_deg_dist.csv",  essential_random_deg_list, delimiter =", ",  fmt ='% s')
 		np.savetxt("total_deg_dist.csv",  total_network_deg_list, delimiter =", ",  fmt ='% s')  
 
-
-
-
 		network.node_list = initial_infect(n_initial_infected, network.node_list) #infect the intial nodes
 		
 		vaccinations_number_array = np.zeros(n_days) # vaccinations_array(n_days) #TO BE CHANGED 
 
-		days_lockdown_start = []
-		days_lockdown_end = []
-		day_school_close = []
-		day_school_open = []
-
 		for j in range(n_days):
-			array_weights, change = lockdowns(array_weights, j,days_lockdown_start, days_lockdown_end, day_school_close, day_school_open, original_array_weights)
+			array_weights, change = lockdowns(array_weights, j)
 			if change == True:
 				total_network = (array_weights[0]*family_graph + array_weights[1]*worker_graph +
 					array_weights[2]*essential_worker_graph + array_weights[3]*student_graph +
 					array_weights[4]*random_graph + array_weights[5]*essential_random_graph)
 			network.node_list, matrix_infected[i,j], matrix_death[i,j], matrix_recovery[i,j] = main_loop(network.node_list, total_network)
 			network.node_list, matrix_vaccination[i,j] = vaccination(network.node_list, vaccinations_number_array[j])
-
 		matrix_infected[i,0] += n_initial_infected	
 	
-	
-
 	return matrix_infected, matrix_death, matrix_recovery, matrix_vaccination
+
+
+
+
 

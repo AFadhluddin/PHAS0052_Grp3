@@ -26,6 +26,11 @@ def plot_results(name_file, matrix_infected, matrix_death, matrix_recovery, matr
 	"""
 	n_simulations, n_days = np.shape(matrix_infected) 
 
+	days_lockdown_start = [30]
+	days_lockdown_end = [50]
+	day_school_close = [25]
+	day_school_open = [60]
+
 	fig = plt.figure(figsize = (14, 8))
 
 	################## Plot day data ##################
@@ -53,10 +58,10 @@ def plot_results(name_file, matrix_infected, matrix_death, matrix_recovery, matr
 
 	#### plot vaccination ####
 	ax4 = fig.add_subplot(244)
-	ax4.set_title('Vaccinations')
+	ax4.set_title('Symptoms')
 	for i in range(n_simulations):
 		ax4.plot(matrix_vaccination[i], color='black', linewidth=0.5,alpha = 0.5)
-	ax3.plot(np.mean(matrix_vaccination , axis = 0), color = 'black') # plot the average
+	ax4.plot(np.mean(matrix_vaccination , axis = 0), color = 'black') # plot the average
 
 	################## Plot cumulative data ##################
 	

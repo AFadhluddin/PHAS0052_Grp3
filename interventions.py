@@ -7,14 +7,21 @@ import pandas as pd
 
 
 
-def lockdowns(array_weights, day, days_lockdown_start, days_lockdown_end, day_school_close, day_school_open, original_array_weights):
+def lockdowns(array_weights, day):
 	"""
 	Check if there is a lockdown
 	Inputs:
 	array_weights   Array of the weights of the graph
 	day             Day of the simulation
-	Output: array_weights
+	Output: array_weights, change (True, False)
 	"""
+	days_lockdown_start = []
+	days_lockdown_end = []
+	day_school_close = []
+	day_school_open = []
+
+	original_array_weights = np.array([0.7,0.1,0.1,0.1,0.2,0.2])
+
 	updeated_array_weights = array_weights
 	change = False
 	# check if the day is an important day 
