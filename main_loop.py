@@ -36,23 +36,23 @@ def simulation(n_days, n_nodes, n_initial_infected, array_network_parameters, ar
         family_graph))
 		
 	worker_graph = network.worker_network(array_network_parameters[0])
-	deg_family = degree_distribution(nx.convert_matrix.from_numpy_matrix(
+	deg_worker = degree_distribution(nx.convert_matrix.from_numpy_matrix(
         worker_graph))
 
 	essential_worker_graph = network.essential_worker_network(array_network_parameters[1])
-	deg_family = degree_distribution(nx.convert_matrix.from_numpy_matrix(
+	deg_essential_worker= degree_distribution(nx.convert_matrix.from_numpy_matrix(
         essential_worker_graph))
 
 	student_graph = network.student_network(array_network_parameters[2])
-	deg_family = degree_distribution(nx.convert_matrix.from_numpy_matrix(
+	deg_sudent = degree_distribution(nx.convert_matrix.from_numpy_matrix(
         student_graph))
 
 	random_graph = network.random_social_network(array_network_parameters[3])
-	deg_family = degree_distribution(nx.convert_matrix.from_numpy_matrix(
+	deg_random = degree_distribution(nx.convert_matrix.from_numpy_matrix(
         random_graph))
 
 	essential_random_graph = network.essential_random_network(array_network_parameters[4])
-	deg_family = degree_distribution(nx.convert_matrix.from_numpy_matrix(
+	deg_essential_random = degree_distribution(nx.convert_matrix.from_numpy_matrix(
         essential_random_graph))
 
 	# weighted sum of the network 
@@ -303,6 +303,17 @@ def main_algorithm(n_simulations, n_days, n_nodes, n_initial_infected, array_net
 	matrix_recovery = np.zeros((n_simulations, n_days))
 	matrix_vaccination = np.zeros((n_simulations, n_days))
 
+	# Lists to hold degree distributions per simulation
+	family_deg_list = []
+	worker_deg_list = []
+	essential_worker_deg_list = []
+	student_deg_list = []
+	random_deg_list = []
+	essential_random_deg_list = []
+	total_network_deg_list = []
+
+
+
 	for i in tqdm(range(n_simulations)):
 
 		network = Network_Generation(n_nodes) # generate the network
@@ -313,23 +324,23 @@ def main_algorithm(n_simulations, n_days, n_nodes, n_initial_infected, array_net
 			family_graph))
 			
 		worker_graph = network.worker_network(array_network_parameters[0])
-		deg_family = degree_distribution(nx.convert_matrix.from_numpy_matrix(
+		deg_worker = degree_distribution(nx.convert_matrix.from_numpy_matrix(
 			worker_graph))
 
 		essential_worker_graph = network.essential_worker_network(array_network_parameters[1])
-		deg_family = degree_distribution(nx.convert_matrix.from_numpy_matrix(
+		deg_essential_worker= degree_distribution(nx.convert_matrix.from_numpy_matrix(
 			essential_worker_graph))
 
 		student_graph = network.student_network(array_network_parameters[2])
-		deg_family = degree_distribution(nx.convert_matrix.from_numpy_matrix(
+		deg_sudent = degree_distribution(nx.convert_matrix.from_numpy_matrix(
 			student_graph))
 
 		random_graph = network.random_social_network(array_network_parameters[3])
-		deg_family = degree_distribution(nx.convert_matrix.from_numpy_matrix(
+		deg_random = degree_distribution(nx.convert_matrix.from_numpy_matrix(
 			random_graph))
 
 		essential_random_graph = network.essential_random_network(array_network_parameters[4])
-		deg_family = degree_distribution(nx.convert_matrix.from_numpy_matrix(
+		deg_essential_random = degree_distribution(nx.convert_matrix.from_numpy_matrix(
 			essential_random_graph))
 
 		# weighted sum of the network 
@@ -340,6 +351,27 @@ def main_algorithm(n_simulations, n_days, n_nodes, n_initial_infected, array_net
 
 		deg_total_network = degree_distribution(nx.convert_matrix.from_numpy_matrix(
 			total_network))
+
+		# Apending degree distributions lists 
+		family_deg_list.append(deg_family)
+		worker_deg_list.append(deg_worker)
+		essential_worker_deg_list.append(deg_essential_worker)
+		student_deg_list.append(deg_sudent)
+		random_deg_list.append(deg_random)
+		essential_random_deg_list.append(deg_essential_random)
+		total_network_deg_list.append(deg_total_network)
+
+		# Saving them to csv files 
+		np.savetxt("family_deg_dist.csv",  family_deg_list, delimiter =", ",  fmt ='% s')
+		np.savetxt("worker_deg_dist.csv",  worker_deg_list, delimiter =", ",  fmt ='% s') 
+		np.savetxt("essential_worker_deg_dist.csv",  essential_worker_deg_list, delimiter =", ",  fmt ='% s') 
+		np.savetxt("student_deg_dist.csv",  student_deg_list, delimiter =", ",  fmt ='% s') 
+		np.savetxt("random_deg_dist.csv",  random_deg_list, delimiter =", ",  fmt ='% s') 
+		np.savetxt("essential_random_deg_dist.csv",  essential_random_deg_list, delimiter =", ",  fmt ='% s')
+		np.savetxt("total_deg_dist.csv",  total_network_deg_list, delimiter =", ",  fmt ='% s')  
+
+
+
 
 		network.node_list = initial_infect(n_initial_infected, network.node_list) #infect the intial nodes
 		
@@ -360,6 +392,8 @@ def main_algorithm(n_simulations, n_days, n_nodes, n_initial_infected, array_net
 			network.node_list, matrix_vaccination[i,j] = vaccination(network.node_list, vaccinations_number_array[j])
 
 		matrix_infected[i,0] += n_initial_infected	
+	
+	
 
 	return matrix_infected, matrix_death, matrix_recovery, matrix_vaccination
 
