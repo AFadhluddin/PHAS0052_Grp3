@@ -14,7 +14,10 @@ def initialise_matrix_parameters(n_parameters_combinations):
 	matrix_parameters = np.array([
 		[2,2,2,2,2],
 		[2,2,2,1,1],
+		[2,2,1,2,2],
 		[2,2,1,1,1],
+		[1,1,2,2,2],
+		[1,1,2,1,1],
 		[1,1,1,1,1]])
 	return matrix_parameters
 
@@ -41,12 +44,12 @@ def main_parameters_iteration(matrix_parameters, n_parameters_combinations, n_si
 
 if __name__ == "__main__":
 
-	n_parameters_combinations = 4
+	n_parameters_combinations = 7
 
-	n_simulations = 10
-	n_days = 90
-	n_nodes = 1000 
-	n_initial_infected = 5
+	n_simulations = 40
+	n_days = 100
+	n_nodes = 10000 
+	n_initial_infected = 10
 	array_weights = np.array([0.7,0.1,0.1,0.1,0.2,0.2]) #from data
 	original_array_weights = array_weights
 
